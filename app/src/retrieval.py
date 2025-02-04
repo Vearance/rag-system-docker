@@ -1,8 +1,8 @@
 import faiss
 import numpy as np
 from typing import List, Dict
-from app.src.embeddings import EmbeddingProcess
-from app.src.process import DocumentProcessing
+from src.embeddings import EmbeddingProcess
+from src.process import DocumentProcessing
 
 class VectorStore:
     """

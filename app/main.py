@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
-from app.routes import documents, questions
-from app.src.config import get_settings
-from app.schemas import MonitoringData
+from routes import documents, questions
+from src.config import get_settings
+from schemas import MonitoringData
 import time
 
 # load settings

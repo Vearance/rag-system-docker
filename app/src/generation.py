@@ -2,7 +2,7 @@ import httpx
 # import json
 # from typing import Dict, List
 import time
-from app.src.config import get_settings
+from src.config import get_settings
 
 settings = get_settings()
 

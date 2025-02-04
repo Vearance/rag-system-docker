@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas import QuestionRequest, AnswerResponse
-from app.src.generation import OllamaGenerator
-from app.src.retrieval import VectorStore
+from schemas import QuestionRequest, AnswerResponse
+from src.generation import OllamaGenerator
+from src.retrieval import VectorStore
 import time
 
 router = APIRouter()
