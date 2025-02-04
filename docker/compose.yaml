@@ -9,10 +9,10 @@ services:
       - "8900:8900"
     volumes:
       # - ../data:/app/data
-      - ../data:/app/data
+      - ../data:/data
       - ../app:/app
-      - ../scripts:/app/scripts
-      - ../tests:/app/tests
+      - ../scripts:/scripts
+      - ../tests:/tests
     depends_on:
       - ollama
     environment:

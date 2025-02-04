@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.schema import DocumentUpload, AnswerResponse
+from app.schemas import DocumentUpload, AnswerResponse
 from app.src.process import DocumentProcessor
 from app.src.embeddings import EmbeddingProcess
 from app.src.retrieval import VectorStore

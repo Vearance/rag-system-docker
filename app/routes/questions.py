@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.schema import QuestionRequest, AnswerResponse
+from app.schemas import QuestionRequest, AnswerResponse
 from app.src.generation import OllamaGenerator
 from app.src.retrieval import VectorStore
 import time
@@ -10,6 +10,9 @@ vector_store = VectorStore()
 
 @router.post("/ask", response_model=AnswerResponse)
 async def ask_question(request: QuestionRequest):
+    """
+    handles user questions by retrieving relevant context and generating answers.
+    """
     try:
         start_time = time.time()
 
@@ -22,7 +25,7 @@ async def ask_question(request: QuestionRequest):
         # combine context
         context = " ".join([r["chunk"] for r in results])
 
-        # response
+        # generate response
         answer, generation_time = await generator.response_with_api(
             request.question,
             context

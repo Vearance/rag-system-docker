@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     MAX_TOKENS: int = 500
     TEMPERATURE: float = 0.7
     OLLAMA_BASE_URL: str = "http://ollama:11434"
+    API_KEY: str
 
     class Config:
         env_file = ".env"
