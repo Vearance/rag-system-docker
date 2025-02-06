@@ -40,17 +40,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# api key authentication
-# api_key_header = APIKeyHeader(name="x-api-key", auto_error=True)
-
-# def get_api_key(api_key: str = Depends(api_key_header)):
-#     """
-#     validates the api key provided in the request header.
-#     raises an http 403 error if the key is invalid.
-#     """
-#     if api_key != settings.API_KEY:
-#         raise HTTPException(status_code=403, detail="invalid api key")
-#     return api_key
 
 # middleware to monitor requests
 @app.middleware("http")

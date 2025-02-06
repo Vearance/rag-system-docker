@@ -5,10 +5,11 @@ from src.retrieval import VectorStore
 import time
 from langchain_ollama import OllamaEmbeddings
 import PyPDF2
+import os
 
 router = APIRouter()
 processor = DocumentProcessing()
-embedding_process = OllamaEmbeddings(model="llama2")
+embedding_process = OllamaEmbeddings(model="all-minilm", base_url=os.getenv('OLLAMA_BASE_URL', "http://localhost:11434"))
 vector_store = VectorStore(embedding_process, processor)
 
 @router.post("/upload", response_model=AnswerResponse)
@@ -16,7 +17,7 @@ async def upload_document(file: UploadFile = File(...)):
     # Validate file type
     if not file.filename.endswith((".txt", ".md", ".pdf")):
         raise HTTPException(status_code=400, detail="Unsupported file type")
-    
+
     try:
         start_time = time.time()
 
@@ -32,7 +33,7 @@ async def upload_document(file: UploadFile = File(...)):
         processed_data = processor.process_document(content, file.filename)
 
         # Create embeddings
-        embeddings = [embedding_process.embed_query(chunk) for chunk in processed_data[file.filename]]
+        embeddings = [embedding_process.embed_query([chunk]) for chunk in processed_data[file.filename]]
         metadata = [{"filename": file.filename, "chunk": chunk} for chunk in processed_data[file.filename]]
 
         # Store vector

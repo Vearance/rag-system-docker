@@ -4,7 +4,7 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain.schema import Document
 
 class EmbeddingProcess:
-    def __init__(self, model_name: str = 'llama2'):
+    def __init__(self, model_name: str = "all-minilm"):
         self.model_name = model_name
         self.embedding_model = OllamaEmbeddings(model=model_name)
 
