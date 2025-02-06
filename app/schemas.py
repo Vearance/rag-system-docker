@@ -8,6 +8,7 @@ class DocumentUpload(BaseModel):
     filename: str = Field(..., example="technical_spec.pdf", description="Name of the uploaded file")
     content_type: str = Field(..., example="application/pdf", description="MIME type of the file")
 
+
 class DocumentUploadResponse(BaseModel):
     """
     Response model for document upload endpoint.
@@ -18,6 +19,7 @@ class DocumentUploadResponse(BaseModel):
         example="Document processed successfully",
         description="Additional message about the upload process"
     )
+
 
 class QuestionRequest(BaseModel):
     """
@@ -34,6 +36,7 @@ class QuestionRequest(BaseModel):
         example=["What is Duke Engine?", "Tell me about cooling systems"],
         description="List of previous questions for context"
     )
+
 
 class AnswerResponse(BaseModel):
     """
@@ -55,6 +58,7 @@ class AnswerResponse(BaseModel):
         example=1.23,
         description="Time taken to process the request in seconds"
     )
+
 
 class MonitoringData(BaseModel):
     """

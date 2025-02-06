@@ -35,21 +35,22 @@ monitoring_data = MonitoringData()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # api key authentication
-api_key_header = APIKeyHeader(name="x-api-key", auto_error=False)
+# api_key_header = APIKeyHeader(name="x-api-key", auto_error=True)
 
-def get_api_key(api_key: str = Depends(api_key_header)):
-    """
-    validates the api key provided in the request header.
-    raises an http 403 error if the key is invalid.
-    """
-    if api_key != settings.API_KEY:
-        raise HTTPException(status_code=403, detail="invalid api key")
-    return api_key
+# def get_api_key(api_key: str = Depends(api_key_header)):
+#     """
+#     validates the api key provided in the request header.
+#     raises an http 403 error if the key is invalid.
+#     """
+#     if api_key != settings.API_KEY:
+#         raise HTTPException(status_code=403, detail="invalid api key")
+#     return api_key
 
 # middleware to monitor requests
 @app.middleware("http")
@@ -67,5 +68,5 @@ async def monitor_requests(request, call_next):
     return response
 
 # include routers
-app.include_router(documents.router, prefix="/documents", dependencies=[Depends(get_api_key)])
-app.include_router(questions.router, prefix="/questions", dependencies=[Depends(get_api_key)])
+app.include_router(documents.router, prefix="/documents")
+app.include_router(questions.router, prefix="/questions")

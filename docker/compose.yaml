@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   rag:
     build:
@@ -8,30 +6,20 @@ services:
     ports:
       - "8900:8900"
     volumes:
-      # - ../data:/app/data
       - ../data:/data
       - ../app:/app
-      - ../scripts:/scripts
-      - ../tests:/tests
     depends_on:
       - ollama
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-
+      - VECTORSTORE_DIR=/app/data/vector_store
+      - API_KEY="6138c5370595af0a0cc290c84a0607ebdc868c90b5f7df354001ed22c86ea52b"
   ollama:
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    # gpu support
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-
+    restart: always
 volumes:
   ollama_data:

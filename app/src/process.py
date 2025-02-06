@@ -2,12 +2,17 @@ import re
 from typing import List, Dict
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
-
-# un-comment this if haven't download these
 import nltk
+from langchain.docstore.document import Document
+import PyPDF2
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+# Download necessary NLTK data
 nltk.download('punkt')
-nltk.download('punkt_tab')
 nltk.download('stopwords')
+nltk.download('punkt_tab')
 
 class DocumentProcessing:
     def __init__(self, max_tokens: int = 300, overlap: int = 50):
@@ -60,3 +65,36 @@ class DocumentProcessing:
         sentences = self.preprocess_text(content)
         chunks = self.create_chunks(sentences)
         return {filename: chunks}
+
+def ingest_document(file_path: str, vectorstore=None):
+    # Read the document
+    with open(file_path, "rb") as f:
+        pdf_reader = PyPDF2.PdfReader(f)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text() + "\n"
+    
+    # Process the document
+    doc_processor = DocumentProcessing()
+    processed_doc = doc_processor.process_document(text, file_path)
+    
+    # Convert processed chunks into LangChain Documents
+    documents = [Document(page_content=chunk) for chunk in processed_doc[file_path]]
+    
+    # Embed and index the documents
+    embeddings = OpenAIEmbeddings()
+    if vectorstore is None:
+        vectorstore = FAISS.from_documents(documents, embeddings)
+    else:
+        vectorstore.add_documents(documents)
+    
+    return vectorstore
+
+def create_llama_index(directory_path: str):
+    # Load documents using LlamaIndex's SimpleDirectoryReader
+    documents = SimpleDirectoryReader(directory_path).load_data()
+    
+    # Create an index using LlamaIndex
+    index = VectorStoreIndex.from_documents(documents)
+    
+    return index

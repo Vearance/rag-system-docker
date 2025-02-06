@@ -1,19 +1,32 @@
-from sentence_transformers import SentenceTransformer
-from typing import List, Dict
+from typing import Dict, List, Tuple
 import numpy as np
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain.schema import Document
 
 class EmbeddingProcess:
-    def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
-        self.model = SentenceTransformer(model_name)  # import model
+    def __init__(self, model_name: str = 'llama2'):
+        self.model_name = model_name
+        self.embedding_model = OllamaEmbeddings(model=model_name)
 
-    def create_embeddings(self, data: Dict[str, List[str]]) -> tuple:
+    def create_embeddings(self, data: Dict[str, List[str]]) -> Tuple[np.ndarray, List[Dict]]:
+        """
+        Create embeddings for a dictionary of document chunks.
+
+        Args:
+            data (Dict[str, List[str]]): Dictionary where keys are filenames and values are lists of text chunks.
+
+        Returns:
+            Tuple[np.ndarray, List[Dict]]: A tuple containing:
+                - A numpy array of embeddings.
+                - A list of metadata dictionaries for each chunk.
+        """
         embeddings = []
         metadata = []
 
         for file_name, chunks in data.items():
             for idx, chunk in enumerate(chunks):
-                embedding = self.model.encode(chunk)
-                embeddings.append(embedding.tolist())
+                embedding = self.embedding_model.embed_query(chunk)
+                embeddings.append(embedding)
                 metadata.append({
                     'document': file_name,
                     'chunk': chunk,
@@ -23,5 +36,36 @@ class EmbeddingProcess:
         return np.array(embeddings), metadata
 
     def encode_query(self, text: str) -> np.ndarray:
-        embedding = self.model.encode(text)  # encode query
-        return embedding / np.linalg.norm(embedding)
+        """
+        Encode a query into an embedding.
+
+        Args:
+            text (str): The query text to encode.
+
+        Returns:
+            np.ndarray: The normalized embedding vector.
+        """
+        embedding = self.embedding_model.embed_query(text)
+        return embedding / np.linalg.norm(embedding)  # Normalize the embedding
+
+    def create_langchain_documents(self, data: Dict[str, List[str]]) -> List[Document]:
+        """
+        Convert document chunks into LangChain Document objects.
+
+        Args:
+            data (Dict[str, List[str]]): Dictionary where keys are filenames and values are lists of text chunks.
+
+        Returns:
+            List[Document]: A list of LangChain Document objects.
+        """
+        documents = []
+        for file_name, chunks in data.items():
+            for idx, chunk in enumerate(chunks):
+                documents.append(Document(
+                    page_content=chunk,
+                    metadata={
+                        'document': file_name,
+                        'chunk_index': idx
+                    }
+                ))
+        return documents
