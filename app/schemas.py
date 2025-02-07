@@ -3,14 +3,14 @@ from typing import List, Optional, Dict
 
 class DocumentUpload(BaseModel):
     """
-    Request model for uploading a document.
+    request model for uploading a document.
     """
     filename: str = Field(..., example="technical_spec.pdf", description="Name of the uploaded file")
     content_type: str = Field(..., example="application/pdf", description="MIME type of the file")
 
 class DocumentUploadResponse(BaseModel):
     """
-    Response model for document upload endpoint.
+    response model for document upload endpoint.
     """
     status: str = Field(example="success", description="Status of the upload process")
     chunks: int = Field(example=10, description="Number of chunks created from the document")
@@ -21,7 +21,7 @@ class DocumentUploadResponse(BaseModel):
 
 class QuestionRequest(BaseModel):
     """
-    Request model for asking questions.
+    request model for asking questions.
     """
     question: str = Field(
         ...,
@@ -37,7 +37,7 @@ class QuestionRequest(BaseModel):
 
 class AnswerResponse(BaseModel):
     """
-    Response model for question answering.
+    response model for question answering.
     """
     answer: str = Field(
         example="The engine power is 210 HP.",
@@ -54,7 +54,7 @@ class AnswerResponse(BaseModel):
 
 class MonitoringData(BaseModel):
     """
-    Model for tracking system performance metrics.
+    model for tracking system performance metrics.
     """
     request_count: int = Field(
         default=0,

@@ -9,7 +9,7 @@ from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
-# Download necessary NLTK data
+# download NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('punkt_tab')
@@ -73,28 +73,28 @@ def ingest_document(file_path: str, vectorstore=None):
         text = ""
         for page in pdf_reader.pages:
             text += page.extract_text() + "\n"
-    
+
     # Process the document
     doc_processor = DocumentProcessing()
     processed_doc = doc_processor.process_document(text, file_path)
-    
-    # Convert processed chunks into LangChain Documents
+
+    # convert into LangChain Documents
     documents = [Document(page_content=chunk) for chunk in processed_doc[file_path]]
-    
+
     # Embed and index the documents
     embeddings = OpenAIEmbeddings()
     if vectorstore is None:
         vectorstore = FAISS.from_documents(documents, embeddings)
     else:
         vectorstore.add_documents(documents)
-    
+
     return vectorstore
 
 def create_llama_index(directory_path: str):
     # Load documents using LlamaIndex's SimpleDirectoryReader
     documents = SimpleDirectoryReader(directory_path).load_data()
-    
+
     # Create an index using LlamaIndex
     index = VectorStoreIndex.from_documents(documents)
-    
+
     return index

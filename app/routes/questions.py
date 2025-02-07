@@ -21,30 +21,30 @@ async def ask_question(request: QuestionRequest):
     """
     try:
         start_time = time.time()
-        
-        # Load vector store
+
+        # load vector store
         vectorstore = load_vectorstore(
             VECTORSTORE_DIR,
-            use_langchain=True,  # Set use_langchain to True - IMPORTANT!
-            embedding_process=embedding_process  # Pass embedding_process - IMPORTANT!
+            use_langchain=True,
+            embedding_process=embedding_process
         )
         if vectorstore is None:
             raise HTTPException(status_code=400, detail="No documents ingested yet.")
-        
-        # Create QA chain
+
+        # create QA chain
         qa_chain = create_qa_chain(vectorstore, OLLAMA_BASE_URL)
-        
-        # Get answer
+
+        # get answer
         answer = answer_question(qa_chain, request.question)
-        
+
         total_time = time.time() - start_time
-        
+
         return AnswerResponse(
             answer=answer,
-            sources=[],  # Adjust if sources need to be retrieved
+            sources=[],
             metrics={
                 "total_time": total_time,
-                "retrieval_time": 0,  # Adjust if retrieval time is needed
+                "retrieval_time": 0,
                 "generation_time": total_time
             }
         )

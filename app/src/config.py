@@ -4,13 +4,13 @@ import os
 
 class Settings(BaseSettings):
     APP_NAME: str = "RAG System"
-    MODEL_NAME: str = "tinyllama"
+    MODEL_NAME: str = "llama2"  # or use "tinyllama" -> Read documentation README for more!
     CHUNK_SIZE: int = 300
     CHUNK_OVERLAP: int = 50
     MAX_TOKENS: int = 500
     TEMPERATURE: float = 0.7
-    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")  # Added type annotation
-    VECTORSTORE_DIR: str = os.getenv("VECTORSTORE_DIR", "data/vector_store")  # Added type annotation
+    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    VECTORSTORE_DIR: str = os.getenv("VECTORSTORE_DIR", "data/vector_store")
     API_KEY: str = "6138c5370595af0a0cc290c84a0607ebdc868c90b5f7df354001ed22c86ea52b"
 
     class Config:

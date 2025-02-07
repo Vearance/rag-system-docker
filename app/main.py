@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import APIKeyHeader
+# from fastapi.security import APIKeyHeader
 from routes import documents, questions
 from src.config import get_settings
 from schemas import MonitoringData

@@ -1,6 +1,6 @@
-import time
+# import time
 from langchain.chains import RetrievalQA
-from langchain.schema import BaseRetriever
+# from langchain.schema import BaseRetriever
 from src.config import get_settings
 from langchain_community.llms import Ollama
 
@@ -12,7 +12,7 @@ def create_qa_chain(vectorstore, ollama_base_url: str) -> RetrievalQA:
         base_url=ollama_base_url,
         model=settings.MODEL_NAME
     )
-    retriever = vectorstore.as_retriever()  # Use the correct retriever method
+    retriever = vectorstore.as_retriever()
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
@@ -24,12 +24,5 @@ def create_qa_chain(vectorstore, ollama_base_url: str) -> RetrievalQA:
 def answer_question(qa_chain: RetrievalQA, question: str) -> str:
     """
     Answers a question using the provided QA chain.
-
-    Args:
-        qa_chain (RetrievalQA): The QA chain to use for answering.
-        question (str): The question to answer.
-
-    Returns:
-        str: The answer to the question.
     """
     return qa_chain.run(question)

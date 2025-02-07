@@ -10,15 +10,7 @@ class EmbeddingProcess:
 
     def create_embeddings(self, data: Dict[str, List[str]]) -> Tuple[np.ndarray, List[Dict]]:
         """
-        Create embeddings for a dictionary of document chunks.
-
-        Args:
-            data (Dict[str, List[str]]): Dictionary where keys are filenames and values are lists of text chunks.
-
-        Returns:
-            Tuple[np.ndarray, List[Dict]]: A tuple containing:
-                - A numpy array of embeddings.
-                - A list of metadata dictionaries for each chunk.
+        create embeddings for a dictionary of document chunks.
         """
         embeddings = []
         metadata = []
@@ -37,26 +29,14 @@ class EmbeddingProcess:
 
     def encode_query(self, text: str) -> np.ndarray:
         """
-        Encode a query into an embedding.
-
-        Args:
-            text (str): The query text to encode.
-
-        Returns:
-            np.ndarray: The normalized embedding vector.
+        encode query into an embedding.
         """
         embedding = self.embedding_model.embed_query(text)
         return embedding / np.linalg.norm(embedding)  # Normalize the embedding
 
     def create_langchain_documents(self, data: Dict[str, List[str]]) -> List[Document]:
         """
-        Convert document chunks into LangChain Document objects.
-
-        Args:
-            data (Dict[str, List[str]]): Dictionary where keys are filenames and values are lists of text chunks.
-
-        Returns:
-            List[Document]: A list of LangChain Document objects.
+        convert document chunks into LangChain Document objects.
         """
         documents = []
         for file_name, chunks in data.items():

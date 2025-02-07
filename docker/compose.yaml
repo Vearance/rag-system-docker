@@ -6,7 +6,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     restart: always
-    # command: ["ollama", "pull", "nomic-embed-text"] # Changed to list format
+    # command: ["ollama", "pull", "llama2"]
     networks:
       - rag-network
 

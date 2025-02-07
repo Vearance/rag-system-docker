@@ -9,7 +9,6 @@ from src.process import DocumentProcessing
 class VectorStore:
     """
     A class for managing the vector store and performing similarity searches.
-    Supports both custom FAISS and LangChain FAISS backends.
     """
 
     def __init__(
@@ -19,12 +18,7 @@ class VectorStore:
         use_langchain: bool = False
     ):
         """
-        Initializes the vector store with embedding and document processing utilities.
-
-        Args:
-            embedding_process (EmbeddingProcess): The embedding process utility.
-            document_process (DocumentProcessing): The document processing utility.
-            use_langchain (bool): Whether to use LangChain's FAISS backend. Defaults to False.
+        Initializes the vector store with embedding and document processing.
         """
         self.embed_process = embedding_process
         self.doc_process = document_process
@@ -35,16 +29,11 @@ class VectorStore:
 
     def create_index(self, embeddings: np.ndarray, metadata: List[Dict]):
         """
-        Creates a FAISS index from the provided embeddings and metadata.
-
-        Args:
-            embeddings (np.ndarray): The embeddings to index.
-            metadata (List[Dict]): Metadata associated with each embedding.
+        create FAISS index from the embeddings and metadata.
         """
         self.metadata = metadata
 
         if self.use_langchain:
-            # Convert embeddings and metadata into LangChain Documents
             documents = []
             for i, embed in enumerate(embeddings):
                 doc = Document(
@@ -58,8 +47,8 @@ class VectorStore:
 
             # Create LangChain FAISS vector store
             self.vectorstore = FAISS.from_documents(
-                documents=documents,  # Explicitly name the 'documents' argument
-                embedding=self.embed_process.embedding_model,  # Explicitly name the 'embedding' argument
+                documents=documents,
+                embedding=self.embed_process.embedding_model,
                 # metadatas=[doc.metadata for doc in documents]
             )
         # else:
@@ -82,7 +71,6 @@ class VectorStore:
         """
         Performs a weighted search using the query and optional history.
         Returns the top-k most relevant chunks.
-
         """
         query_cleaned = self.doc_process.preprocess_text(query)
         query_embed = self.embed_process.encode_query(query_cleaned)  # Encode query
@@ -92,11 +80,10 @@ class VectorStore:
         else:
             history_embed = np.zeros_like(query_embed)
 
-        # Combine query and history with weights
         combined_query = current_weight * query_embed + (1 - current_weight) * history_embed
 
         if self.use_langchain:
-            # Use LangChain's FAISS for retrieval
+            # use LangChain's FAISS for retrieval
             results = self.vectorstore.similarity_search_by_vector(
                 combined_query, k=top_k
             )
@@ -127,10 +114,7 @@ class VectorStore:
 
     def save_vectorstore(self, directory: str):
         """
-        Saves the vector store to disk.
-
-        Args:
-            directory (str): The directory to save the vector store to.
+        Saves the vector store
         """
         if self.use_langchain and self.vectorstore:
             self.vectorstore.save_local(directory)
@@ -138,7 +122,6 @@ class VectorStore:
             raise NotImplementedError("Saving is only supported for LangChain FAISS.")
 
 
-# Standalone function to load the vectorstore (instead of a method inside the class)
 def load_vectorstore(directory: str, use_langchain: bool = False, embedding_process=None, document_process=None):
     """
     Loads the vector store from disk.
@@ -149,7 +132,7 @@ def load_vectorstore(directory: str, use_langchain: bool = False, embedding_proc
         vectorstore = FAISS.load_local(
             directory,
             embedding_process.embedding_model,
-            allow_dangerous_deserialization=True  # <---- ADD THIS LINE: allow_dangerous_deserialization=True
+            allow_dangerous_deserialization=True
         )
     else:
         raise NotImplementedError("Loading is only supported for LangChain FAISS.")
