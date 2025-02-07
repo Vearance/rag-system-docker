@@ -57,20 +57,20 @@ class VectorStore:
                 documents.append(doc)
 
             # Create LangChain FAISS vector store
-            self.vectorstore = FAISS.from_embeddings(
-                embeddings=list(embeddings),
-                embedding=self.embed_process.embedding_model,
-                metadatas=[doc.metadata for doc in documents]
+            self.vectorstore = FAISS.from_documents(
+                documents=documents,  # Explicitly name the 'documents' argument
+                embedding=self.embed_process.embedding_model,  # Explicitly name the 'embedding' argument
+                # metadatas=[doc.metadata for doc in documents]
             )
-        else:
-            # Normalize embeddings to unit vectors
-            norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
-            normalized_embeddings = embeddings / norms
+        # else:
+            # # Normalize embeddings to unit vectors
+            # norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+            # normalized_embeddings = embeddings / norms
 
-            # Create custom FAISS index
-            dim = embeddings.shape[1]
-            self.index = FAISS.IndexFlatIP(dim)  # Cosine similarity
-            self.index.add(normalized_embeddings)
+            # # Create custom FAISS index
+            # dim = embeddings.shape[1]
+            # self.index = FAISS.IndexFlatIP(dim)  # Cosine similarity
+            # self.index.add(normalized_embeddings)
 
     def weighted_query(
         self,

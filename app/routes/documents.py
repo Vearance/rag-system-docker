@@ -5,12 +5,13 @@ from src.retrieval import VectorStore
 import time
 from langchain_ollama import OllamaEmbeddings
 import PyPDF2
-import os
+from src.embeddings import EmbeddingProcess
+import numpy as np
 
 router = APIRouter()
 processor = DocumentProcessing()
-embedding_process = OllamaEmbeddings(model="all-minilm", base_url="http://ollama-container:11434")
-vector_store = VectorStore(embedding_process, processor)
+embedding_process = EmbeddingProcess(model="all-minilm", base_url="http://ollama:11434")
+vector_store = VectorStore(embedding_process, processor, use_langchain=True)
 
 @router.post("/upload", response_model=DocumentUploadResponse)
 async def upload_document(file: UploadFile = File(...)):
@@ -31,17 +32,30 @@ async def upload_document(file: UploadFile = File(...)):
 
         # Process document
         processed_data = processor.process_document(content, file.filename)
+        chunks = processed_data.get(file.filename, [])
+
+        if not chunks:
+            raise HTTPException(status_code=400, detail="No processable content found")
 
         # Create embeddings for each chunk
         try:
-            embeddings = [embedding_process.embed_query(chunk) for chunk in processed_data[file.filename]]
+            embeddings_list = [embedding_process.encode_query(chunk) for chunk in processed_data[file.filename]]
+            embeddings_np = np.array(embeddings_list)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error during embedding process: {str(e)}")
 
-        metadata = [{"filename": file.filename, "chunk": i} for i in range(len(processed_data[file.filename]))]
+        metadata = [
+            {
+                "filename": file.filename,
+                "chunk": chunk_text,
+                "document": file.filename,
+                "index": i
+            }
+            for i, chunk_text in enumerate(chunks)
+        ]
 
         # Store vector
-        vector_store.create_index(embeddings, metadata)
+        vector_store.create_index(embeddings_np, metadata)
 
         processing_time = time.time() - start_time
 

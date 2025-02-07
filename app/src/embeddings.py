@@ -1,12 +1,12 @@
 from typing import Dict, List, Tuple
 import numpy as np
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain.schema import Document
 
 class EmbeddingProcess:
-    def __init__(self, model_name: str = "all-minilm"):
-        self.model_name = model_name
-        self.embedding_model = OllamaEmbeddings(model=model_name)
+    def __init__(self, model: str = "all-minilm", base_url="http://ollama:11434"):
+        self.model_name = model
+        self.embedding_model = OllamaEmbeddings(model=model, base_url=base_url)
 
     def create_embeddings(self, data: Dict[str, List[str]]) -> Tuple[np.ndarray, List[Dict]]:
         """
