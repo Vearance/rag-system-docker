@@ -4,12 +4,15 @@ from src.generation import create_qa_chain, answer_question
 from src.retrieval import load_vectorstore
 from src.config import get_settings
 import time
+from src.embeddings import EmbeddingProcess
 
 settings = get_settings()
 VECTORSTORE_DIR = settings.VECTORSTORE_DIR
 OLLAMA_BASE_URL = settings.OLLAMA_BASE_URL
 
 router = APIRouter()
+
+embedding_process = EmbeddingProcess(model="all-minilm")
 
 @router.post("/ask", response_model=AnswerResponse)
 async def ask_question(request: QuestionRequest):
@@ -20,7 +23,11 @@ async def ask_question(request: QuestionRequest):
         start_time = time.time()
         
         # Load vector store
-        vectorstore = load_vectorstore(VECTORSTORE_DIR)
+        vectorstore = load_vectorstore(
+            VECTORSTORE_DIR,
+            use_langchain=True,  # Set use_langchain to True - IMPORTANT!
+            embedding_process=embedding_process  # Pass embedding_process - IMPORTANT!
+        )
         if vectorstore is None:
             raise HTTPException(status_code=400, detail="No documents ingested yet.")
         

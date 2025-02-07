@@ -3,15 +3,18 @@ from schemas import DocumentUploadResponse
 from src.process import DocumentProcessing
 from src.retrieval import VectorStore
 import time
+from src.config import get_settings
 from langchain_ollama import OllamaEmbeddings
 import PyPDF2
 from src.embeddings import EmbeddingProcess
 import numpy as np
 
+settings = get_settings()
 router = APIRouter()
 processor = DocumentProcessing()
 embedding_process = EmbeddingProcess(model="all-minilm", base_url="http://ollama:11434")
 vector_store = VectorStore(embedding_process, processor, use_langchain=True)
+VECTORSTORE_DIR = settings.VECTORSTORE_DIR
 
 @router.post("/upload", response_model=DocumentUploadResponse)
 async def upload_document(file: UploadFile = File(...)):
@@ -56,6 +59,7 @@ async def upload_document(file: UploadFile = File(...)):
 
         # Store vector
         vector_store.create_index(embeddings_np, metadata)
+        vector_store.save_vectorstore(VECTORSTORE_DIR)
 
         processing_time = time.time() - start_time
 

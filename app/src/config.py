@@ -4,7 +4,7 @@ import os
 
 class Settings(BaseSettings):
     APP_NAME: str = "RAG System"
-    MODEL_NAME: str = "llama2"
+    MODEL_NAME: str = "tinyllama"
     CHUNK_SIZE: int = 300
     CHUNK_OVERLAP: int = 50
     MAX_TOKENS: int = 500

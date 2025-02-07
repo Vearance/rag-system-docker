@@ -83,14 +83,6 @@ class VectorStore:
         Performs a weighted search using the query and optional history.
         Returns the top-k most relevant chunks.
 
-        Args:
-            query (str): The query to search for.
-            history (Optional[List[str]]): A list of previous queries for context.
-            top_k (int): The number of results to return.
-            current_weight (float): The weight for the current query vs. history.
-
-        Returns:
-            List[Dict]: A list of results with chunk, document, index, and distance.
         """
         query_cleaned = self.doc_process.preprocess_text(query)
         query_embed = self.embed_process.encode_query(query_cleaned)  # Encode query
@@ -150,17 +142,15 @@ class VectorStore:
 def load_vectorstore(directory: str, use_langchain: bool = False, embedding_process=None, document_process=None):
     """
     Loads the vector store from disk.
-
-    Args:
-        directory (str): The directory to load the vector store from.
-        use_langchain (bool): Whether to use LangChain's FAISS. Defaults to False.
-        embedding_process: Embedding process utility, required if using LangChain FAISS.
-        document_process: Document processing utility, required if using LangChain FAISS.
     """
     vectorstore = None
 
     if use_langchain:
-        vectorstore = FAISS.load_local(directory, embedding_process.embedding_model)
+        vectorstore = FAISS.load_local(
+            directory,
+            embedding_process.embedding_model,
+            allow_dangerous_deserialization=True  # <---- ADD THIS LINE: allow_dangerous_deserialization=True
+        )
     else:
         raise NotImplementedError("Loading is only supported for LangChain FAISS.")
 
