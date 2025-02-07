@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from schemas import AnswerResponse
+from schemas import DocumentUploadResponse
 from src.process import DocumentProcessing
 from src.retrieval import VectorStore
 import time
@@ -9,10 +9,10 @@ import os
 
 router = APIRouter()
 processor = DocumentProcessing()
-embedding_process = OllamaEmbeddings(model="all-minilm", base_url=os.getenv('OLLAMA_BASE_URL', "http://localhost:11434"))
+embedding_process = OllamaEmbeddings(model="all-minilm", base_url="http://ollama-container:11434")
 vector_store = VectorStore(embedding_process, processor)
 
-@router.post("/upload", response_model=AnswerResponse)
+@router.post("/upload", response_model=DocumentUploadResponse)
 async def upload_document(file: UploadFile = File(...)):
     # Validate file type
     if not file.filename.endswith((".txt", ".md", ".pdf")):
@@ -32,20 +32,23 @@ async def upload_document(file: UploadFile = File(...)):
         # Process document
         processed_data = processor.process_document(content, file.filename)
 
-        # Create embeddings
-        embeddings = [embedding_process.embed_query([chunk]) for chunk in processed_data[file.filename]]
-        metadata = [{"filename": file.filename, "chunk": chunk} for chunk in processed_data[file.filename]]
+        # Create embeddings for each chunk
+        try:
+            embeddings = [embedding_process.embed_query(chunk) for chunk in processed_data[file.filename]]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error during embedding process: {str(e)}")
+
+        metadata = [{"filename": file.filename, "chunk": i} for i in range(len(processed_data[file.filename]))]
 
         # Store vector
         vector_store.create_index(embeddings, metadata)
 
         processing_time = time.time() - start_time
 
-        return AnswerResponse(
-            filename=file.filename,
-            chunks=len(metadata),
+        return DocumentUploadResponse(
             status="success",
-            processing_time=processing_time
+            chunks=len(metadata),
+            message="Document processed successfully"
         )
 
     except Exception as e:

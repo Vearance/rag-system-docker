@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 class DocumentUpload(BaseModel):
     """
@@ -7,7 +7,6 @@ class DocumentUpload(BaseModel):
     """
     filename: str = Field(..., example="technical_spec.pdf", description="Name of the uploaded file")
     content_type: str = Field(..., example="application/pdf", description="MIME type of the file")
-
 
 class DocumentUploadResponse(BaseModel):
     """
@@ -19,7 +18,6 @@ class DocumentUploadResponse(BaseModel):
         example="Document processed successfully",
         description="Additional message about the upload process"
     )
-
 
 class QuestionRequest(BaseModel):
     """
@@ -37,7 +35,6 @@ class QuestionRequest(BaseModel):
         description="List of previous questions for context"
     )
 
-
 class AnswerResponse(BaseModel):
     """
     Response model for question answering.
@@ -46,19 +43,14 @@ class AnswerResponse(BaseModel):
         example="The engine power is 210 HP.",
         description="Generated answer from the RAG system"
     )
-    sources: List[dict] = Field(
+    sources: List[Dict[str, str]] = Field(
         example=[{"document": "manual.pdf", "chunk": 5}],
         description="List of sources used to generate the answer"
     )
-    tokens_used: int = Field(
-        example=256,
-        description="Number of tokens used in the LLM response"
+    metrics: Dict[str, float] = Field(
+        example={"total_time": 1.23, "retrieval_time": 0.5, "generation_time": 0.73},
+        description="Metrics related to the processing time"
     )
-    processing_time: float = Field(
-        example=1.23,
-        description="Time taken to process the request in seconds"
-    )
-
 
 class MonitoringData(BaseModel):
     """

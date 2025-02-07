@@ -1,4 +1,37 @@
 services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: always
+    networks:
+      - rag-network
+    healthcheck:  # Keep the healthcheck (or remove it for initial testing if it's still causing issues)
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  ollama-init: # New initialization service
+    image: alpine/curl:latest # Using a lightweight alpine image with curl
+    depends_on:
+      ollama:
+        condition: service_healthy # Wait for ollama to be healthy
+    networks:
+      - rag-network
+    entrypoint: /bin/sh -c # Run a shell command
+    command: |
+      set -x # Enable shell debugging
+      until curl -f http://ollama:11434; do # Wait for Ollama API to be available
+        echo "Ollama API not yet available, waiting..."
+        sleep 5
+      done
+      echo "Ollama API is available, pulling nomic-embed-text model..."
+      ollama pull nomic-embed-text # Pull the model
+
   rag:
     build:
       context: ..
@@ -9,17 +42,17 @@ services:
       - ../data:/data
       - ../app:/app
     depends_on:
-      - ollama
+      - ollama-init # Depend on ollama-init, not directly on ollama anymore
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - VECTORSTORE_DIR=/app/data/vector_store
       - API_KEY="6138c5370595af0a0cc290c84a0607ebdc868c90b5f7df354001ed22c86ea52b"
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    restart: always
+    networks:
+      - rag-network
+
 volumes:
   ollama_data:
+
+networks:
+  rag-network:
+    driver: bridge
